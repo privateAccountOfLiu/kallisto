@@ -11,6 +11,8 @@
 #endif
 
 #include <windows.h>
+#include <winsock2.h>   // provides struct timeval (NO guard in WinSDK 10.0.26100+)
+#include <ws2tcpip.h>   // required after winsock2.h
 #include <sys/stat.h>
 #include <direct.h>
 #include <io.h>
@@ -42,11 +44,7 @@ typedef unsigned short mode_t;
 #define fileno _fileno
 
 // -- timeval and gettimeofday -------------------------------------------
-
-struct timeval {
-    long tv_sec;
-    long tv_usec;
-};
+// timeval is provided by <winsock2.h> included above
 
 inline int gettimeofday(struct timeval* tv, void* tz) {
     (void)tz;

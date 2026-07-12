@@ -43,6 +43,8 @@
 
 /* Use 64-bit file offsets */
 #define HAVE_FSEEKO 1
+#define fseeko _fseeki64
+#define ftello _ftelli64
 
 /* off_t — defined in htslib_win32_compat.h via sys/types.h */
 

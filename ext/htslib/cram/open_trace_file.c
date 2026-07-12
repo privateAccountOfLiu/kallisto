@@ -66,7 +66,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#ifdef _MSC_VER
+#include "../htslib_win32_compat.h"
+#else
 #include <unistd.h>
+#endif
 #include <limits.h>
 #include <sys/types.h>
 #include <sys/stat.h>

@@ -73,7 +73,7 @@ if(USE_HDF5)
 endif()
 
 if(USE_BAM)
-    target_link_libraries(kallisto "${HTSLIB_ROOT}/build_mt/Release/hts.lib")
+    target_link_libraries(kallisto "${HTSLIB_ROOT}/build_mt/Release/hts.lib" ws2_32.lib)
 endif()
 
 # Static linking flags

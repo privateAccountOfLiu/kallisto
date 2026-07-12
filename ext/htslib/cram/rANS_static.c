@@ -40,10 +40,16 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
+#ifdef _MSC_VER
+#include "../htslib_win32_compat.h"
+#else
 #include <unistd.h>
+#endif
 #include <assert.h>
 #include <string.h>
+#ifndef _MSC_VER
 #include <sys/time.h>
+#endif
 
 #include "cram/rANS_static.h"
 #include "cram/rANS_byte.h"
