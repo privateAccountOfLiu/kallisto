@@ -17,10 +17,13 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_FLAGS_RELEASE "/O2 /DNDEBUG")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /DCOMPILATION_ARCH=OFF /DENABLE_AVX2=OFF /DMAX_KMER_SIZE=32 /DNO_HTSLIB=ON")
 
+option(USE_HDF5 "Compile with HDF5 support" ON)
+
 # Source files
 set(KALLISTO_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/..")
 set(BIFROST_ROOT "${KALLISTO_ROOT}/ext/bifrost")
 set(ZLIBNG_ROOT "${KALLISTO_ROOT}/ext/zlib-ng")
+set(HDF5_ROOT "${KALLISTO_ROOT}/ext/hdf5-1.14.4-2")
 
 file(GLOB KALLISTO_SOURCES "${KALLISTO_ROOT}/src/*.cpp")
 file(GLOB KALLISTO_HEADERS "${KALLISTO_ROOT}/src/*.h" "${KALLISTO_ROOT}/src/*.hpp")
@@ -39,6 +42,12 @@ include_directories(
 # Link libraries
 set(BIFROST_LIB "${BIFROST_ROOT}/build_mt6/src/Release/bifrost.lib")
 set(ZLIB_LIB "${ZLIBNG_ROOT}/build_mt2/Release/zlibstatic.lib")
+set(HDF5_LIB "${HDF5_ROOT}/build_mt/bin/Release/libhdf5.lib")
+
+if(USE_HDF5)
+    add_compile_definitions("USE_HDF5=ON")
+    include_directories("${HDF5_ROOT}/install/include")
+endif()
 
 add_executable(kallisto ${KALLISTO_SOURCES})
 
@@ -46,6 +55,10 @@ target_link_libraries(kallisto
     ${BIFROST_LIB}
     ${ZLIB_LIB}
 )
+
+if(USE_HDF5)
+    target_link_libraries(kallisto ${HDF5_LIB} shlwapi.lib)
+endif()
 
 # Static linking flags
 set_target_properties(kallisto PROPERTIES
