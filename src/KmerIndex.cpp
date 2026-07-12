@@ -180,8 +180,9 @@ int hamming(const char* a, const char* b) {
 }
 
 int my_mkdir_kmer_index(const char* path, mode_t mode) {
-#ifdef _WIN64
-  return mkdir(path);
+#ifdef _WIN32
+  (void)mode;
+  return _mkdir(path);
 #else
   return mkdir(path, mode);
 #endif

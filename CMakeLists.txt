@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0.0)
+cmake_minimum_required(VERSION 3.5.0)
 
 project(kallisto)
 
@@ -49,10 +49,16 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 if(CMAKE_BUILD_TYPE MATCHES "Debug")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -g")
+    if(NOT MSVC)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -g")
+    endif()
 endif()
 
-if(${CMAKE_VERSION} VERSION_LESS 3.1)
+if(MSVC)
+    set(CMAKE_CXX_STANDARD 17)
+    set(CMAKE_CXX_STANDARD_REQUIRED ON)
+    set(CMAKE_CXX_EXTENSIONS OFF)
+elseif(${CMAKE_VERSION} VERSION_LESS 3.1)
     # CMake versions before 3.1 do not understand CMAKE_CXX_STANDARD
     # remove this block once CMake >=3.1 has fixated in the ecosystem
     add_compile_options(-std=c++11)
@@ -70,11 +76,18 @@ else()
 endif()
 
 #add_compile_options(-Wall -Wno-unused-function)
-add_compile_options(-Wno-deprecated-declarations -Wno-subobject-linkage) # Suppress bifrost warning
-set(PROJECT_BIFROST_CMAKE_CXX_FLAGS "-Wno-subobject-linkage -Wno-return-type") # Suppress bifrost warning
+if(NOT MSVC)
+  add_compile_options(-Wno-deprecated-declarations -Wno-subobject-linkage) # Suppress bifrost warning
+  set(PROJECT_BIFROST_CMAKE_CXX_FLAGS "-Wno-subobject-linkage -Wno-return-type") # Suppress bifrost warning
+else()
+  set(PROJECT_BIFROST_CMAKE_CXX_FLAGS "/W3")
+endif()
 
 if(LINK MATCHES static)
     message("static build")
+    if(MSVC)
+        set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+    endif()
 ELSE(LINK MATCHES shared)
     message("shared build")
 ENDIF(LINK MATCHES static)
@@ -93,26 +106,39 @@ ExternalProject_Add(htslib
 )
 endif(USE_BAM)
 
-ExternalProject_Add(bifrost
-    PREFIX ${PROJECT_SOURCE_DIR}/ext/bifrost
-    SOURCE_DIR ${PROJECT_SOURCE_DIR}/ext/bifrost
-    BUILD_IN_SOURCE 1
-    CONFIGURE_COMMAND mkdir -p build && cd build && cmake .. -DMAX_KMER_SIZE=${MAX_KMER_SIZE} -DCMAKE_INSTALL_PREFIX=${PREFIX} -DCMAKE_CXX_FLAGS=${PROJECT_BIFROST_CMAKE_CXX_FLAGS} ${DO_ENABLE_AVX2} ${DO_ENABLE_COMPILATION_ARCH}
-    BUILD_COMMAND cd build && make
-    INSTALL_COMMAND ""
-)
-
 if (ZLIBNG)
     message("zlib-ng enabled.")
     ExternalProject_Add(zlib-ng
     PREFIX ${PROJECT_SOURCE_DIR}/ext/zlib-ng
     SOURCE_DIR ${PROJECT_SOURCE_DIR}/ext/zlib-ng
     BUILD_IN_SOURCE 1
-    CONFIGURE_COMMAND mkdir -p zlib-ng && cd zlib-ng && cmake .. -DZLIB_COMPAT=ON -DZLIB_ENABLE_TESTS=OFF -DCMAKE_INSTALL_PREFIX=${PREFIX}
-    BUILD_COMMAND cd zlib-ng && make
+    CONFIGURE_COMMAND ${CMAKE_COMMAND} -E make_directory zlib-ng && cd zlib-ng && ${CMAKE_COMMAND} .. -G "${CMAKE_GENERATOR}" -DZLIB_COMPAT=ON -DZLIB_ENABLE_TESTS=OFF -DCMAKE_INSTALL_PREFIX=${PREFIX}
+    BUILD_COMMAND ${CMAKE_COMMAND} --build zlib-ng --config $<CONFIG>
     INSTALL_COMMAND ""
     )
 endif(ZLIBNG)
+
+if(ZLIBNG)
+  set(BIFROST_ZLIB_ARGS
+    "-DZLIB_LIBRARY=${PROJECT_SOURCE_DIR}/ext/zlib-ng/zlib-ng/Release/zlibstatic.lib"
+    "-DZLIB_INCLUDE_DIR=${PROJECT_SOURCE_DIR}/ext/zlib-ng"
+    "-DZLIB_INCLUDE_DIRS=${PROJECT_SOURCE_DIR}/ext/zlib-ng\\;${PROJECT_SOURCE_DIR}/ext/zlib-ng/zlib-ng"
+  )
+  set(BIFROST_ZLIB_DEPS "zlib-ng")
+else()
+  set(BIFROST_ZLIB_ARGS "")
+  set(BIFROST_ZLIB_DEPS "")
+endif()
+
+ExternalProject_Add(bifrost
+    PREFIX ${PROJECT_SOURCE_DIR}/ext/bifrost
+    SOURCE_DIR ${PROJECT_SOURCE_DIR}/ext/bifrost
+    BUILD_IN_SOURCE 1
+    DEPENDS ${BIFROST_ZLIB_DEPS}
+    CONFIGURE_COMMAND ${CMAKE_COMMAND} -E make_directory build && cd build && ${CMAKE_COMMAND} .. -G "${CMAKE_GENERATOR}" -DMAX_KMER_SIZE=${MAX_KMER_SIZE} -DCMAKE_INSTALL_PREFIX=${PREFIX} -DCMAKE_CXX_FLAGS=${PROJECT_BIFROST_CMAKE_CXX_FLAGS} ${DO_ENABLE_AVX2} ${DO_ENABLE_COMPILATION_ARCH} ${BIFROST_ZLIB_ARGS} -DCMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}
+    BUILD_COMMAND ${CMAKE_COMMAND} --build build --config $<CONFIG>
+    INSTALL_COMMAND ""
+)
 
 if (USE_BAM)
     include_directories(${htslib_PREFIX}/src/htslib)
@@ -147,7 +173,7 @@ if (BUILD_FUNCTESTING)
     add_subdirectory(func_tests)
     message("Functional testing enabled.")
     add_custom_target(test
-    COMMAND /bin/bash ./func_tests/runtests.sh
+    COMMAND bash ./func_tests/runtests.sh
     DEPENDS ./src/kallisto
     )
 endif(BUILD_FUNCTESTING)

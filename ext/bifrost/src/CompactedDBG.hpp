@@ -10,7 +10,9 @@
 #include <cstdio>
 #include <climits>
 #include <functional>
+#ifndef _MSC_VER
 #include <getopt.h>
+#endif
 #include <iostream>
 #include <map>
 #include <set>

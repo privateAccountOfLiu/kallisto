@@ -11,7 +11,9 @@ if(NOT MAX_KMER_SIZE)
 set(MAX_KMER_SIZE "32")
 endif()
 
-add_compile_options(-Wno-subobject-linkage) # Suppress bifrost warning
+if(NOT MSVC)
+  add_compile_options(-Wno-subobject-linkage) # Suppress bifrost warning
+endif()
 
 add_library(kallisto_core ${sources} ${headers})
 target_include_directories(kallisto_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
@@ -20,10 +22,27 @@ add_executable(kallisto main.cpp ${sources} ${headers})
 
 find_package( Threads REQUIRED )
 ExternalProject_Get_Property(bifrost install_dir)
-if (USE_BAM)
-target_link_libraries(kallisto kallisto_core pthread ${CMAKE_CURRENT_SOURCE_DIR}/../ext/htslib/libhts.a ${install_dir}/build/src/libbifrost.a  -DMAX_KMER_SIZE=${MAX_KMER_SIZE})
+
+if(MSVC)
+  set(BIFROST_LIB_PATH
+    debug "${install_dir}/build/src/Debug/bifrost.lib"
+    optimized "${install_dir}/build/src/Release/bifrost.lib")
 else()
-target_link_libraries(kallisto kallisto_core pthread ${install_dir}/build/src/libbifrost.a -DMAX_KMER_SIZE=${MAX_KMER_SIZE})
+  set(BIFROST_LIB_PATH "${install_dir}/build/src/libbifrost.a")
+endif()
+
+if (USE_BAM)
+  if(UNIX)
+    target_link_libraries(kallisto kallisto_core pthread ${CMAKE_CURRENT_SOURCE_DIR}/../ext/htslib/libhts.a ${BIFROST_LIB_PATH} -DMAX_KMER_SIZE=${MAX_KMER_SIZE})
+  else()
+    target_link_libraries(kallisto kallisto_core ${CMAKE_CURRENT_SOURCE_DIR}/../ext/htslib/libhts.a ${BIFROST_LIB_PATH})
+  endif()
+else()
+  if(UNIX)
+    target_link_libraries(kallisto kallisto_core pthread ${BIFROST_LIB_PATH} -DMAX_KMER_SIZE=${MAX_KMER_SIZE})
+  else()
+    target_link_libraries(kallisto kallisto_core ${BIFROST_LIB_PATH})
+  endif()
 endif(USE_BAM)
 
 if(LINK MATCHES static)

@@ -5,6 +5,10 @@
 
 // NOTE: MAKE SURE THIS FILE GETS INCLUDED FIRST IN ALL OTHER FILES AND BEFORE ANY EXTERNAL LIBRARIES
 
+#ifdef _MSC_VER
+#include "win32_compat.h"
+#endif
+
 #include <string>
 #include <vector>
 #include <iostream>
@@ -26,10 +30,6 @@
 #define u_set_ ankerl::unordered_dense::set
 #endif
 
-
-#ifdef _WIN64
-typedef unsigned int uint;
-#endif
 
 extern std::unordered_map<char, std::string>cfc_aa_map;
 extern std::string revcomp(const std::string s);

@@ -13,7 +13,12 @@
 #include <unordered_map>
 #include <vector>
 #include <assert.h>
+#ifdef _MSC_VER
+#include "win32_compat_bifrost.h"
+#else
 #include <sys/time.h>
+#include <pthread.h>
+#endif
 #include <string.h>
 #include <memory> // for make_shared
 
@@ -1138,12 +1143,20 @@ we need this 2-functors scheme because HashFunctors won't work with unordered_ma
                     so, casting to (void*) because of that; and we remember the type in the template */
 
                 for(int ii=0;ii<_num_thread;ii++)
+#ifdef _WIN32
+                {win32_thread_wrapper* _w = new win32_thread_wrapper; _w->fn = &thread_processLevel<elem_t, Hasher_t, Range, fastmode_it_type>; _w->arg = &t_arg; tab_threads[ii] = CreateThread(NULL, 0, win32_thread_start, _w, 0, NULL);}
+#else
                     pthread_create (&tab_threads[ii], NULL,  thread_processLevel<elem_t, Hasher_t, Range, fastmode_it_type>, &t_arg); //&t_arg[ii]
+#endif
             }
             else
             {
                 for(int ii=0;ii<_num_thread;ii++)
+#ifdef _WIN32
+                {win32_thread_wrapper* _w = new win32_thread_wrapper; _w->fn = &thread_processLevel<elem_t, Hasher_t, Range, decltype(input_range.begin())>; _w->arg = &t_arg; tab_threads[ii] = CreateThread(NULL, 0, win32_thread_start, _w, 0, NULL);}
+#else
                     pthread_create (&tab_threads[ii], NULL,  thread_processLevel<elem_t, Hasher_t, Range, decltype(input_range.begin())>, &t_arg); //&t_arg[ii]
+#endif
             }
             //joining
             for(int ii=0;ii<_num_thread;ii++)

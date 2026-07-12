@@ -1,4 +1,8 @@
+#ifdef _MSC_VER
+#include "getopt_port.h"
+#else
 #include <getopt.h>
+#endif
 #include <sys/stat.h>
 #include <time.h>
 
@@ -30,8 +34,9 @@
 
 
 int my_mkdir(const char *path, mode_t mode) {
-#ifdef _WIN64
-  return mkdir(path);
+#ifdef _WIN32
+  (void)mode;
+  return _mkdir(path);
 #else
   return mkdir(path, mode);
 #endif

@@ -11,6 +11,10 @@
 
 #include "wyhash.h"
 
+#ifdef _MSC_VER
+#include "win32_compat_bifrost.h"
+#endif
+
 #if defined(__GNUC__)
 #define BFG_LIKELY(x) (__builtin_expect((x), 1))
 #define BFG_UNLIKELY(x) (__builtin_expect((x), 0))
