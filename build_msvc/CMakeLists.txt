@@ -15,10 +15,16 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 set(CMAKE_CXX_FLAGS_RELEASE "/O2 /DNDEBUG")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /DCOMPILATION_ARCH=OFF /DENABLE_AVX2=OFF /DMAX_KMER_SIZE=32 /DNO_HTSLIB=ON")
+string(REPLACE "/GL" "" CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /DCOMPILATION_ARCH=OFF /DENABLE_AVX2=OFF /DMAX_KMER_SIZE=32")
 
 option(USE_HDF5 "Compile with HDF5 support" ON)
 option(USE_BAM  "Compile with HTSlib BAM support" ON)
+
+# NO_HTSLIB is the default when BAM is off
+if(NOT USE_BAM)
+    add_compile_definitions(NO_HTSLIB)
+endif()
 
 # Source files
 set(KALLISTO_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/..")
@@ -52,8 +58,6 @@ if(USE_HDF5)
 endif()
 
 if(USE_BAM)
-    remove_definitions("-DNO_HTSLIB=ON")
-    add_compile_definitions("NO_HTSLIB=OFF")
     include_directories("${HTSLIB_ROOT}" "${HTSLIB_ROOT}/htslib" "${HTSLIB_ROOT}/cram" "${HTSLIB_ROOT}/build_mt")
 endif()
 
@@ -74,7 +78,7 @@ endif()
 
 # Static linking flags
 set_target_properties(kallisto PROPERTIES
-    LINK_FLAGS "/SUBSYSTEM:CONSOLE /STACK:8388608"
+    LINK_FLAGS "/SUBSYSTEM:CONSOLE /STACK:8388608 /LTCG:OFF"
 )
 
 install(TARGETS kallisto DESTINATION bin)

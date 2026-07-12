@@ -184,6 +184,10 @@ static inline char* dlerror(void) {
 // pthread → Win32 replacements (for htslib thread_pool + bgzf)
 // =====================================================================
 
+// If KALLISTO_WIN32_COMPAT_H was already included (for bifrost),
+// pthread types are already defined. Both use CRITICAL_SECTION now.
+#ifndef KALLISTO_WIN32_COMPAT_H
+
 // Thread pool needs RECURSIVE mutexes (thread_pool.c line 676).
 // CRITICAL_SECTION is recursive; SRWLOCK is not. Use CRITICAL_SECTION.
 
@@ -236,8 +240,8 @@ static inline int pthread_mutex_unlock(pthread_mutex_t* m) {
 }
 
 // -- struct timeval + gettimeofday (used by thread_pool.c) ----------------
-// timeval is already defined by <winsock2.h> above
-// timespec is in MSVC <time.h>; include it here for files that need it
+// Skip if KALLISTO_WIN32_COMPAT_H already defines these
+#ifndef KALLISTO_WIN32_COMPAT_H
 #include <time.h>
 
 static inline int gettimeofday(struct timeval* tv, void* tz) {
@@ -252,6 +256,7 @@ static inline int gettimeofday(struct timeval* tv, void* tz) {
     tv->tv_usec = (long)((li.QuadPart % 10000000) / 10);
     return 0;
 }
+#endif
 
 // -- condition variable -----------------------------------------------
 
@@ -372,6 +377,8 @@ static inline int pthread_kill(pthread_t thread, int sig) {
     // If it is reached, it's a bug.
     return 0;
 }
+
+#endif // !KALLISTO_WIN32_COMPAT_H
 
 #ifdef __cplusplus
 }

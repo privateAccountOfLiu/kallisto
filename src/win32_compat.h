@@ -96,41 +96,37 @@ inline uint64_t win32_atomic_fetch_and(uint64_t volatile* ptr, uint64_t val) {
 }
 #define __sync_fetch_and_and(ptr, val) win32_atomic_fetch_and((ptr), (val))
 
-// -- pthread_mutex_t -> SRWLOCK ----------------------------------------
+// -- pthread_mutex_t -> CRITICAL_SECTION ---------------------------------
+// Uses CRITICAL_SECTION (not SRWLOCK) for compatibility with HTSlib which
+// requires recursive mutexes in thread_pool. Also compatible with Bifrost.
 
-typedef SRWLOCK pthread_mutex_t;
+typedef CRITICAL_SECTION pthread_mutex_t;
 
 inline int win32_pthread_mutex_init(pthread_mutex_t* m, void*) {
-    InitializeSRWLock(m);
+    InitializeCriticalSection(m);
     return 0;
 }
 #define pthread_mutex_init(m, a) win32_pthread_mutex_init((m), (a))
 
-inline int win32_pthread_mutex_destroy(pthread_mutex_t*) {
+inline int win32_pthread_mutex_destroy(pthread_mutex_t* m) {
+    DeleteCriticalSection(m);
     return 0;
 }
 #define pthread_mutex_destroy(m) win32_pthread_mutex_destroy(m)
 
 inline int win32_pthread_mutex_lock(pthread_mutex_t* m) {
-    AcquireSRWLockExclusive(m);
+    EnterCriticalSection(m);
     return 0;
 }
 #define pthread_mutex_lock(m) win32_pthread_mutex_lock(m)
 
 inline int win32_pthread_mutex_unlock(pthread_mutex_t* m) {
-    ReleaseSRWLockExclusive(m);
+    LeaveCriticalSection(m);
     return 0;
 }
 #define pthread_mutex_unlock(m) win32_pthread_mutex_unlock(m)
 
 // -- pthread_t -> HANDLE, pthread_create/join --------------------------
-// pthread_create CANNOT be replaced via a C preprocessor macro because
-// it is called with C++ template function arguments that contain commas
-// (e.g. thread_processLevel<A, B, C>). The individual call sites in
-// BooPHF.h and other files must be guarded with #ifdef _WIN32 and use
-// the win32_thread_* helpers below directly.
-//
-// pthread_join is safe to macro-ize since it takes simple arguments.
 
 typedef HANDLE pthread_t;
 
@@ -147,7 +143,6 @@ inline DWORD WINAPI win32_thread_start(LPVOID param) {
     fn(arg);
     return 0;
 }
-
 
 inline int win32_pthread_join(pthread_t thread, void**) {
     WaitForSingleObject(thread, INFINITE);
