@@ -71,6 +71,7 @@ static inline int win32_mkdir(const char* path, int mode) {
 #define read  _read
 #define write _write
 #define close _close
+#define fstat _fstat64
 #endif
 
 // -- usleep -----------------------------------------------------------
@@ -202,11 +203,24 @@ static inline char* dlerror(void) {
 
 typedef CRITICAL_SECTION pthread_mutex_t;
 
-// On MSVC/Windows, CRITICAL_SECTION cannot be statically initialized with
-// a simple {0} initializer. We use a runtime init function instead.
-// PTHREAD_MUTEX_INITIALIZER is used only in hfile.c for a static mutex.
-// We provide a stub that will be replaced by a runtime init.
-#define PTHREAD_MUTEX_INITIALIZER {0}
+// CRITICAL_SECTION cannot be statically initialized with {0}.
+// PTHREAD_MUTEX_INITIALIZER marks mutexes that need lazy runtime init.
+// Code that uses a statically-initialized mutex must call
+// win32_ensure_static_mutex_init(&mutex) before first use.
+#define PTHREAD_MUTEX_INITIALIZER {0, 0, 0, 0, 0, 0}
+
+static inline int win32_ensure_static_mutex_init(pthread_mutex_t* m) {
+    // Check if mutex was lazy-initialized; CRITICAL_SECTION DebugInfo
+    // field is non-null after InitializeCriticalSection.
+    // Use a simple flag: if LockCount/Semaphore is 0 and uninitialized.
+    // For safety, we use a separate init_once pattern.
+    // Simple heuristic: check if RecursionCount is 0 and DebugInfo is NULL
+    // (which it is in zero-initialized state but NOT after init).
+    if (m->DebugInfo == NULL) {
+        InitializeCriticalSection(m);
+    }
+    return 0;
+}
 
 // mutexattr (simplified — we only need recursive)
 typedef struct { int type; } pthread_mutexattr_t;

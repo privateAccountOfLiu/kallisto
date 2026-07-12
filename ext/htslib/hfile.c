@@ -560,18 +560,31 @@ static size_t blksize(int fd)
 static hFILE *hopen_fd(const char *filename, const char *mode)
 {
     hFILE_fd *fp = NULL;
-    int fd = open(filename, hfile_oflags(mode), 0666);
+    fprintf(stderr, "[DEBUG hopen_fd] filename=%s mode=%s\n", filename, mode);
+    fflush(stderr);
+    int oflags = hfile_oflags(mode);
+    fprintf(stderr, "[DEBUG hopen_fd] oflags=0x%x\n", oflags);
+    fflush(stderr);
+    int fd = open(filename, oflags, 0666);
+    fprintf(stderr, "[DEBUG hopen_fd] fd=%d\n", fd);
+    fflush(stderr);
     if (fd < 0) goto error;
 
     fp = (hFILE_fd *) hfile_init(sizeof (hFILE_fd), mode, blksize(fd));
+    fprintf(stderr, "[DEBUG hopen_fd] fp=%p\n", (void*)fp);
+    fflush(stderr);
     if (fp == NULL) goto error;
 
     fp->fd = fd;
     fp->is_socket = 0;
     fp->base.backend = &fd_backend;
+    fprintf(stderr, "[DEBUG hopen_fd] done\n");
+    fflush(stderr);
     return &fp->base;
 
 error:
+    fprintf(stderr, "[DEBUG hopen_fd] error, fd=%d\n", fd);
+    fflush(stderr);
     if (fd >= 0) { int save = errno; (void) close(fd); errno = save; }
     hfile_destroy((hFILE *) fp);
     return NULL;
@@ -717,9 +730,15 @@ struct hFILE_plugin_list {
 
 static struct hFILE_plugin_list *plugins = NULL;
 static pthread_mutex_t plugins_lock = PTHREAD_MUTEX_INITIALIZER;
+#ifdef _MSC_VER
+static int plugins_lock_inited = 0;
+#endif
 
 static void hfile_exit()
 {
+#ifdef _MSC_VER
+    if (!plugins_lock_inited) { InitializeCriticalSection(&plugins_lock); plugins_lock_inited = 1; }
+#endif
     pthread_mutex_lock(&plugins_lock);
 
     kh_destroy(scheme_string, schemes);
@@ -858,6 +877,9 @@ static const struct hFILE_scheme_handler *find_scheme_handler(const char *s)
     if (i == 0 || i >= sizeof scheme) return NULL;
     scheme[i] = '\0';
 
+#ifdef _MSC_VER
+    if (!plugins_lock_inited) { InitializeCriticalSection(&plugins_lock); plugins_lock_inited = 1; }
+#endif
     pthread_mutex_lock(&plugins_lock);
     if (! schemes) load_hfile_plugins();
     pthread_mutex_unlock(&plugins_lock);
