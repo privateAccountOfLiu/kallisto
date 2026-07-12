@@ -30,6 +30,10 @@ DEALINGS IN THE SOFTWARE.  */
 
 #include <sys/types.h>
 
+#ifdef _MSC_VER
+#include "../htslib_win32_compat.h"
+#endif
+
 #include "hts_defs.h"
 
 #ifdef __cplusplus

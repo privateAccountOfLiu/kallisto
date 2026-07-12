@@ -23,7 +23,11 @@
 */
 
 #include <config.h>
+#ifdef _MSC_VER
+#include "htslib_win32_compat.h"
+#else
 #include <strings.h>
+#endif
 
 #include "htslib/hts.h"
 #include "htslib/kstring.h"

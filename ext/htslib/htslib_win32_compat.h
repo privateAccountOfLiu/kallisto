@@ -10,7 +10,9 @@
 #define NOMINMAX
 #endif
 
+#include <stdlib.h>
 #include <windows.h>
+#include <winsock2.h>
 #include <sys/stat.h>
 #include <io.h>
 #include <direct.h>
@@ -71,6 +73,12 @@ static inline int win32_mkdir(const char* path, int mode) {
 #define sysconf(x)  ((x) == _SC_PAGESIZE ? 4096 : 512)
 #undef  _SC_PAGESIZE
 #define _SC_PAGESIZE 47
+
+// -- off_t (MSVC doesn't define it; typedef from _off_t in sys/types.h) -
+#ifndef _OFF_T_DEFINED
+typedef _off_t off_t;
+#define _OFF_T_DEFINED
+#endif
 
 // -- PATH_MAX ---------------------------------------------------------
 #ifndef PATH_MAX
@@ -224,6 +232,24 @@ static inline int pthread_mutex_lock(pthread_mutex_t* m) {
 
 static inline int pthread_mutex_unlock(pthread_mutex_t* m) {
     LeaveCriticalSection(m);
+    return 0;
+}
+
+// -- struct timeval + gettimeofday (used by thread_pool.c) ----------------
+// timeval is already defined by <winsock2.h> above
+// timespec is in MSVC <time.h>; include it here for files that need it
+#include <time.h>
+
+static inline int gettimeofday(struct timeval* tv, void* tz) {
+    (void)tz;
+    FILETIME ft;
+    GetSystemTimeAsFileTime(&ft);
+    ULARGE_INTEGER li;
+    li.LowPart = ft.dwLowDateTime;
+    li.HighPart = ft.dwHighDateTime;
+    li.QuadPart -= 116444736000000000ULL;
+    tv->tv_sec = (long)(li.QuadPart / 10000000);
+    tv->tv_usec = (long)((li.QuadPart % 10000000) / 10);
     return 0;
 }
 

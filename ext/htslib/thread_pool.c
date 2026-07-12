@@ -32,10 +32,16 @@ DEALINGS IN THE SOFTWARE.  */
 #include <errno.h>
 #include <stdio.h>
 #include <string.h>
+#ifdef _MSC_VER
+#include "htslib_win32_compat.h"
+#else
 #include <sys/time.h>
+#endif
 #include <assert.h>
 #include <stdarg.h>
+#ifndef _MSC_VER
 #include <unistd.h>
+#endif
 #include <limits.h>
 
 #include "thread_pool_internal.h"

@@ -44,9 +44,7 @@
 /* Use 64-bit file offsets */
 #define HAVE_FSEEKO 1
 
-/* off_t — MSVC doesn't define off_t natively, but _off_t in sys/types.h */
-#include <sys/types.h>
-typedef _off_t off_t;
+/* off_t — defined in htslib_win32_compat.h via sys/types.h */
 
 /* Avoid conflicting with MSVC's ERROR in <windows.h> */
 #ifdef ERROR

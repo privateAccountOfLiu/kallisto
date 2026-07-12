@@ -18,12 +18,14 @@ set(CMAKE_CXX_FLAGS_RELEASE "/O2 /DNDEBUG")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /DCOMPILATION_ARCH=OFF /DENABLE_AVX2=OFF /DMAX_KMER_SIZE=32 /DNO_HTSLIB=ON")
 
 option(USE_HDF5 "Compile with HDF5 support" ON)
+option(USE_BAM  "Compile with HTSlib BAM support" ON)
 
 # Source files
 set(KALLISTO_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/..")
 set(BIFROST_ROOT "${KALLISTO_ROOT}/ext/bifrost")
 set(ZLIBNG_ROOT "${KALLISTO_ROOT}/ext/zlib-ng")
 set(HDF5_ROOT "${KALLISTO_ROOT}/ext/hdf5-1.14.4-2")
+set(HTSLIB_ROOT "${KALLISTO_ROOT}/ext/htslib")
 
 file(GLOB KALLISTO_SOURCES "${KALLISTO_ROOT}/src/*.cpp")
 file(GLOB KALLISTO_HEADERS "${KALLISTO_ROOT}/src/*.h" "${KALLISTO_ROOT}/src/*.hpp")
@@ -49,6 +51,12 @@ if(USE_HDF5)
     include_directories("${HDF5_ROOT}/install/include")
 endif()
 
+if(USE_BAM)
+    remove_definitions("-DNO_HTSLIB=ON")
+    add_compile_definitions("NO_HTSLIB=OFF")
+    include_directories("${HTSLIB_ROOT}" "${HTSLIB_ROOT}/htslib" "${HTSLIB_ROOT}/cram" "${HTSLIB_ROOT}/build_mt")
+endif()
+
 add_executable(kallisto ${KALLISTO_SOURCES})
 
 target_link_libraries(kallisto
@@ -58,6 +66,10 @@ target_link_libraries(kallisto
 
 if(USE_HDF5)
     target_link_libraries(kallisto ${HDF5_LIB} shlwapi.lib)
+endif()
+
+if(USE_BAM)
+    target_link_libraries(kallisto "${HTSLIB_ROOT}/build_mt/Release/hts.lib")
 endif()
 
 # Static linking flags

@@ -28,14 +28,16 @@ include_directories(
     ${CMAKE_BINARY_DIR}
 )
 
-# Copy config.h to build dir
+# Copy generated headers to build dir
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.h ${CMAKE_BINARY_DIR}/config.h COPYONLY)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/version.h ${CMAKE_BINARY_DIR}/version.h COPYONLY)
 
 # Defines
 add_compile_definitions(
     _USE_KNETFILE
     BGZF_MT
     _CRT_SECURE_NO_WARNINGS
+    _USE_MATH_DEFINES
 )
 
 # Build static library

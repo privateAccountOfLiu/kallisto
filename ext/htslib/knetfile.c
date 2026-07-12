@@ -36,7 +36,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#ifdef _MSC_VER
+#include "htslib_win32_compat.h"
+#else
 #include <unistd.h>
+#endif
 #include <sys/types.h>
 
 #ifndef _WIN32
