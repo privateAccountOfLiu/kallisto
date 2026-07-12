@@ -64,6 +64,15 @@ static inline int win32_mkdir(const char* path, int mode) {
 #define O_BINARY _O_BINARY
 #define O_EXCL   _O_EXCL
 
+// POSIX I/O → MSVC I/O (not available in static CRT)
+// Only in C mode — C++ uses close as member function (e.g. std::ofstream::close)
+#ifndef __cplusplus
+#define open  _open
+#define read  _read
+#define write _write
+#define close _close
+#endif
+
 // -- usleep -----------------------------------------------------------
 #define usleep(us) Sleep(((us) + 999) / 1000)
 

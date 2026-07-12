@@ -48,7 +48,7 @@
 #include "cram/pooled_alloc.h"
 
 #define BGZF_CACHE
-#define BGZF_MT
+//#define BGZF_MT  // disabled for MSVC debug
 
 #define BLOCK_HEADER_LENGTH 18
 #define BLOCK_FOOTER_LENGTH 8

@@ -681,9 +681,14 @@ void MasterProcessor::processAln(const EMAlgorithm &em, bool useEM = true) {
       }
 
     } else {
+      std::cerr << "[DEBUG] createPseudoBamHeaderTrans..." << std::endl;
       bamh = createPseudoBamHeaderTrans(index);
+      std::cerr << "[DEBUG] sam_open..." << std::endl;
       bamfp = sam_open(bamfn.c_str(), "wb");
+      std::cerr << "[DEBUG] sam_open returned " << (void*)bamfp << std::endl;
+      std::cerr << "[DEBUG] sam_hdr_write..." << std::endl;
       int r = sam_hdr_write(bamfp, bamh);
+      std::cerr << "[DEBUG] sam_hdr_write returned " << r << std::endl;
     }
 
     if (opt.threads > 1 && !opt.genomebam) {

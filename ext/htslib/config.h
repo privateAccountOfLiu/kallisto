@@ -23,6 +23,9 @@
 /* Zlib is available */
 #define HAVE_LIBZ 1
 
+/* Disable BGZF multi-threading for MSVC (debugging segfault) */
+#define BGZF_MT 0
+
 /* No bz2/lzma by default (can be added later) */
 /* #undef HAVE_LIBBZ2 */
 /* #undef HAVE_LIBLZMA */

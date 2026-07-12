@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="18.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="D:\DevelopProjects\cpp\kallisto_x86_64\ext\htslib\build_mt\CMakeFiles\b40bac822adaeae6577b1ff664a875a2\generate.stamp.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{6051ACAE-D725-329C-8813-C073F70F5C6F}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

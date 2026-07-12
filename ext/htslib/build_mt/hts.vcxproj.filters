@@ -1,0 +1,109 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="18.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="D:\DevelopProjects\cpp\kallisto_x86_64\ext\htslib\kfunc.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\DevelopProjects\cpp\kallisto_x86_64\ext\htslib\knetfile.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\DevelopProjects\cpp\kallisto_x86_64\ext\htslib\kstring.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\DevelopProjects\cpp\kallisto_x86_64\ext\htslib\bgzf.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\DevelopProjects\cpp\kallisto_x86_64\ext\htslib\faidx.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\DevelopProjects\cpp\kallisto_x86_64\ext\htslib\hfile.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\DevelopProjects\cpp\kallisto_x86_64\ext\htslib\hfile_net.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\DevelopProjects\cpp\kallisto_x86_64\ext\htslib\hts.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\DevelopProjects\cpp\kallisto_x86_64\ext\htslib\md5.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\DevelopProjects\cpp\kallisto_x86_64\ext\htslib\multipart.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\DevelopProjects\cpp\kallisto_x86_64\ext\htslib\regidx.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\DevelopProjects\cpp\kallisto_x86_64\ext\htslib\sam.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\DevelopProjects\cpp\kallisto_x86_64\ext\htslib\tbx.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\DevelopProjects\cpp\kallisto_x86_64\ext\htslib\textutils.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\DevelopProjects\cpp\kallisto_x86_64\ext\htslib\thread_pool.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\DevelopProjects\cpp\kallisto_x86_64\ext\htslib\cram\cram_codecs.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\DevelopProjects\cpp\kallisto_x86_64\ext\htslib\cram\cram_decode.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\DevelopProjects\cpp\kallisto_x86_64\ext\htslib\cram\cram_encode.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\DevelopProjects\cpp\kallisto_x86_64\ext\htslib\cram\cram_external.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\DevelopProjects\cpp\kallisto_x86_64\ext\htslib\cram\cram_io.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\DevelopProjects\cpp\kallisto_x86_64\ext\htslib\cram\cram_index.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\DevelopProjects\cpp\kallisto_x86_64\ext\htslib\cram\cram_samtools.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\DevelopProjects\cpp\kallisto_x86_64\ext\htslib\cram\cram_stats.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\DevelopProjects\cpp\kallisto_x86_64\ext\htslib\cram\files.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\DevelopProjects\cpp\kallisto_x86_64\ext\htslib\cram\mFILE.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\DevelopProjects\cpp\kallisto_x86_64\ext\htslib\cram\open_trace_file.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\DevelopProjects\cpp\kallisto_x86_64\ext\htslib\cram\pooled_alloc.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\DevelopProjects\cpp\kallisto_x86_64\ext\htslib\cram\rANS_static.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\DevelopProjects\cpp\kallisto_x86_64\ext\htslib\cram\sam_header.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\DevelopProjects\cpp\kallisto_x86_64\ext\htslib\cram\string_alloc.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\DevelopProjects\cpp\kallisto_x86_64\ext\htslib\cram\vlen.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\DevelopProjects\cpp\kallisto_x86_64\ext\htslib\cram\zfio.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="D:\DevelopProjects\cpp\kallisto_x86_64\ext\htslib\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{7CA5AF0D-3483-3ECF-9176-C0213EE20DB6}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
