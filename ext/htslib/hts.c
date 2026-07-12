@@ -422,16 +422,10 @@ htsFile *hts_open_format(const char *fn, const char *mode, const htsFormat *fmt)
     if (fmt && fmt->format != unknown_format)
         *mode_c = "\0g\0\0b\0c\0\0b\0g\0\0"[fmt->format];
 
-    fprintf(stderr, "[DEBUG hts_open] fn=%s smode=%s\n", fn, smode);
-    fflush(stderr);
     hfile = hopen(fn, smode);
-    fprintf(stderr, "[DEBUG hts_open] hopen=%p\n", (void*)hfile);
-    fflush(stderr);
     if (hfile == NULL) goto error;
 
     fp = hts_hopen(hfile, fn, smode);
-    fprintf(stderr, "[DEBUG hts_open] hts_hopen=%p\n", (void*)fp);
-    fflush(stderr);
     if (fp == NULL) goto error;
 
     if (fmt && fmt->specific)

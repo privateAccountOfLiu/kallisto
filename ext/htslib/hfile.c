@@ -560,31 +560,18 @@ static size_t blksize(int fd)
 static hFILE *hopen_fd(const char *filename, const char *mode)
 {
     hFILE_fd *fp = NULL;
-    fprintf(stderr, "[DEBUG hopen_fd] filename=%s mode=%s\n", filename, mode);
-    fflush(stderr);
-    int oflags = hfile_oflags(mode);
-    fprintf(stderr, "[DEBUG hopen_fd] oflags=0x%x\n", oflags);
-    fflush(stderr);
-    int fd = open(filename, oflags, 0666);
-    fprintf(stderr, "[DEBUG hopen_fd] fd=%d\n", fd);
-    fflush(stderr);
+    int fd = open(filename, hfile_oflags(mode), 0666);
     if (fd < 0) goto error;
 
     fp = (hFILE_fd *) hfile_init(sizeof (hFILE_fd), mode, blksize(fd));
-    fprintf(stderr, "[DEBUG hopen_fd] fp=%p\n", (void*)fp);
-    fflush(stderr);
     if (fp == NULL) goto error;
 
     fp->fd = fd;
     fp->is_socket = 0;
     fp->base.backend = &fd_backend;
-    fprintf(stderr, "[DEBUG hopen_fd] done\n");
-    fflush(stderr);
     return &fp->base;
 
 error:
-    fprintf(stderr, "[DEBUG hopen_fd] error, fd=%d\n", fd);
-    fflush(stderr);
     if (fd >= 0) { int save = errno; (void) close(fd); errno = save; }
     hfile_destroy((hFILE *) fp);
     return NULL;
