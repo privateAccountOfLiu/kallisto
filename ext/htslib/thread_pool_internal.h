@@ -42,7 +42,11 @@ DEALINGS IN THE SOFTWARE.  */
 #ifndef THREAD_POOL_INTERNAL_H
 #define THREAD_POOL_INTERNAL_H
 
+#ifdef _MSC_VER
+#include "htslib_win32_compat.h"
+#else
 #include <pthread.h>
+#endif
 #include <stdint.h>
 #include "htslib/thread_pool.h"
 

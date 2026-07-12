@@ -29,9 +29,15 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#ifndef _MSC_VER
 #include <unistd.h>
+#endif
 #include <assert.h>
+#ifdef _MSC_VER
+#include "htslib_win32_compat.h"
+#else
 #include <pthread.h>
+#endif
 #include <sys/types.h>
 #include <inttypes.h>
 

@@ -27,6 +27,10 @@ DEALINGS IN THE SOFTWARE.  */
 
 #include <stdarg.h>
 
+#ifdef _MSC_VER
+#include "htslib_win32_compat.h"
+#endif
+
 #include "htslib/hfile.h"
 
 #ifdef __cplusplus

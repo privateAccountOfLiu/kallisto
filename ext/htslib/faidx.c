@@ -32,7 +32,11 @@ DEALINGS IN THE SOFTWARE.  */
 #include <inttypes.h>
 #include <errno.h>
 #include <limits.h>
+#ifdef _MSC_VER
+#include "htslib_win32_compat.h"
+#else
 #include <unistd.h>
+#endif
 #include <assert.h>
 
 #include "htslib/bgzf.h"

@@ -30,7 +30,11 @@ DEALINGS IN THE SOFTWARE.  */
 #include <errno.h>
 #include <limits.h>
 
+#ifdef _MSC_VER
+#include "htslib_win32_compat.h"
+#else
 #include <pthread.h>
+#endif
 
 #include "htslib/hfile.h"
 #include "hfile_internal.h"
@@ -464,7 +468,9 @@ void hclose_abruptly(hFILE *fp)
 #define HAVE_SETMODE
 #endif
 #include <fcntl.h>
+#ifndef _MSC_VER
 #include <unistd.h>
+#endif
 
 /* For Unix, it doesn't matter whether a file descriptor is a socket.
    However Windows insists on send()/recv() and its own closesocket()

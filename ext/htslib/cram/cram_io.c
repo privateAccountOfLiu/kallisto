@@ -51,7 +51,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
+#ifdef _MSC_VER
+#include "../htslib_win32_compat.h"
+#else
 #include <unistd.h>
+#endif
 #include <zlib.h>
 #ifdef HAVE_LIBBZ2
 #include <bzlib.h>

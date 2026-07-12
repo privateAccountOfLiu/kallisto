@@ -31,7 +31,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <config.h>
 
 #include <stdlib.h>
+#ifdef _MSC_VER
+#include "../htslib_win32_compat.h"
+#else
 #include <unistd.h>
+#endif
 #include <string.h>
 
 #include "cram/os.h"

@@ -28,7 +28,11 @@ DEALINGS IN THE SOFTWARE.  */
 #include <zlib.h>
 #include <stdio.h>
 #include <string.h>
+#ifdef _MSC_VER
+#include "htslib_win32_compat.h"
+#else
 #include <strings.h>
+#endif
 #include <stdlib.h>
 #include <limits.h>
 #include <fcntl.h>

@@ -964,8 +964,14 @@ void hts_tpool_kill(hts_tpool *p) {
 
     DBG_OUT(stderr, "Destroying pool %p, kill=%d\n", p, kill);
 
-    for (i = 0; i < p->tsize; i++)
+    for (i = 0; i < p->tsize; i++) {
+#ifdef _MSC_VER
+        // Windows: signal condition variables to wake blocked threads
+        pthread_cond_signal(&p->t[i].pending_c);
+#else
         pthread_kill(p->t[i].tid, SIGINT);
+#endif
+    }
 
     pthread_mutex_destroy(&p->pool_m);
     for (i = 0; i < p->tsize; i++)
