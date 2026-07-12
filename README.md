@@ -135,6 +135,49 @@ dumpbin /dependents build_msvc/Release/kallisto.exe
 - **BAM (HTSlib) 支持**: HTSlib 的 thread_pool 使用大量 pthread，需要单独的替换工作
 - 当前版本不支持 BAM 输入/输出和 HDF5 输出
 
+### 疑难问题：`_aligned_malloc` / `free` 堆损坏
+
+这是本次 Windows 移植中**最隐蔽的运行时 Bug**，值得单独记录。
+
+#### 症状
+
+Release 构建的 `kallisto index` 在 Bifrost 的 `TinyBitmap` 代码中静默崩溃（exit code 127），无任何错误信息。Debug 构建退出码为 3（MSVC Debug CRT 的 `abort()`）。
+
+#### 根因
+
+`TinyBitmap.cpp` 中位图数据缓冲区通过 `_aligned_malloc()` 分配（MSVC 的对齐内存分配），但在 6 个位置被 `free()` 释放：
+
+```cpp
+// 分配：使用 _aligned_malloc（对齐内存）
+void* p = _aligned_malloc(size, alignment);
+
+// 释放：错误地使用 free() —— 堆损坏！
+free(p);  // ❌ 应该用 _aligned_free(p)
+```
+
+在 MSVC 的 Debug CRT 中，`_aligned_malloc` 分配的块带有特殊标记。当 `free()` 尝试释放这种块时，Debug 堆管理器检测到不匹配的分配/释放函数对，调用 `abort()`。在 Release 模式下，这种不匹配导致**静默堆损坏**——程序表面上继续运行，但堆内部结构已损坏，最终在看似无关的位置崩溃。
+
+#### 为什么 Linux/GCC 上没有这个问题
+
+Linux 的 glibc 中 `memalign`/`posix_memalign` 分配的内存可以用 `free()` 安全释放——glibc 内部对对齐块和普通块使用相同的堆管理，`free()` 能正确处理。MSVC 的 CRT 则将 `_aligned_malloc` 和 `malloc` 分配的内存视为不同类别，`_aligned_malloc` 的块**必须**用 `_aligned_free` 释放。
+
+这是 POSIX 和 Windows CRT 之间一个微妙的语义差异。代码在 Linux 上正确运行了多年，但移植到 MSVC 时暴露了这种依赖于 glibc 实现细节的假设。
+
+#### 修复
+
+文件 `ext/bifrost/src/TinyBitmap.cpp` 中 6 处 `free(tiny_bmp)` / `free(tiny_bmp_new)` 全部替换为 `posix_memalign_free()`。该宏已在文件顶部定义，但此前从未被使用：
+
+```cpp
+#define posix_memalign_free(ptr) _aligned_free(ptr)   // MSVC
+#define posix_memalign_free(ptr) __mingw_aligned_free(ptr) // MinGW
+```
+
+#### 经验教训
+
+1. **分配/释放必须配对**：`_aligned_malloc` → `_aligned_free`，`malloc` → `free`，`new` → `delete`，不可混用。
+2. **Debug CRT 是救星**：MSVC 的 Debug 堆在本应静默崩溃的 Release 构建中检测到了这个问题。始终先用 Debug 构建测试移植代码。
+3. **POSIX 兼容性不等于可移植性**：`free()` 能释放 `posix_memalign` 分配的内存是 glibc 实现细节，不是 POSIX 标准保证的行为。Windows CRT 按标准做事。
+
 ## Development and pull requests
 
 We typically develop on separate branches, then merge into devel once features
